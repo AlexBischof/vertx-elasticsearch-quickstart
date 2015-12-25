@@ -1,0 +1,1 @@
+curl -XPOST 'http://127.0.0.1:9200/_search/template/byage?pretty' -d '{ "template": {"query": { "bool": { "must": [{ "nested": { "path": "comments", "query": { "bool": {"must": [{ "match": { "comments.age":  "{{age}}"    }}]}}}}]}}}}'

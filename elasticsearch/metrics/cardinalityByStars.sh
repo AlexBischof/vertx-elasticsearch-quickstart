@@ -1,0 +1,1 @@
+curl -XPOST 'http://127.0.0.1:9200/myindex/_search?pretty' -d '{"size" : 0, "aggs" : {"age" : {"nested" : {"path" : "comments"},"aggs" : { "min_age" : { "cardinality" : { "field" : "comments.stars" } }}}}}'
