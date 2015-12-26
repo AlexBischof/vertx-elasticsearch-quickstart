@@ -23,11 +23,18 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.transport.InetSocketTransportAddress;
 
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static java.util.Optional.ofNullable;
+import static java.net.InetAddress.getByName;
+import static org.elasticsearch.client.transport.TransportClient.builder;
+import static org.elasticsearch.common.settings.Settings.settingsBuilder;
 
 /**
  * @author <a href="http://tfox.org">Tim Fox</a>
@@ -42,9 +49,11 @@ public class RestVerticle extends AbstractVerticle {
     private Map<String, JsonObject> products = new HashMap<>();
 
     @Override
-    public void start() {
+    public void start() throws UnknownHostException {
 
         setUpInitialData();
+        setupElasticsearchClient();
+        vertx.deployVerticle(new PeriodicTimerVerticle());
 
         Router router = Router.router(vertx);
 
@@ -53,8 +62,17 @@ public class RestVerticle extends AbstractVerticle {
         router.put("/products/:productID").handler(this::handleAddProduct);
         router.get("/products").handler(this::handleListProducts);
 
-        vertx.createHttpServer().requestHandler(router::accept).listen(Integer.
-                parseInt(ofNullable(System.getenv("HOST")).orElse("8080")));
+        vertx.createHttpServer().requestHandler(router::accept).listen(config().getInteger("http.port", 8080));
+    }
+
+    private void setupElasticsearchClient() throws UnknownHostException {
+        Settings settings = settingsBuilder()
+                .put("cluster.name", "elasticsearch_bischofa").build();
+        Client client = builder().settings(settings).build()
+                .addTransportAddress(new InetSocketTransportAddress(getByName("localhost"), 9300));
+
+        SearchResponse searchResponse = client.prepareSearch().execute().actionGet();
+        System.out.println("-->" + searchResponse.getHits());
     }
 
     private void handleGetProduct(RoutingContext routingContext) {
