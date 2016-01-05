@@ -1,0 +1,58 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0-SNAPSHOT",
+    "title": "products"
+  },
+  "host": "localhost:8082",
+  "basePath": "/",
+  "schemes": [
+    "http"
+  ],
+  "paths": {
+    "/products": {
+      "get": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ProductArray"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ProductArray": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "price": {
+          "type": "string"
+        },
+        "weight": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

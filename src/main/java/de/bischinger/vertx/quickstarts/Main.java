@@ -16,10 +16,11 @@ public class Main {
         String config = new String(readAllBytes(get("src/main/conf/my-application-conf.json")));
         DeploymentOptions options = new DeploymentOptions();
         options.setConfig(new JsonObject(config));
+
         vertx.deployVerticle(RestVerticle.class.getName(),
                 options);
+
         Integer port = options.getConfig().getInteger("http.port", 8080);
-        System.out.println(port);
     }
 
 }

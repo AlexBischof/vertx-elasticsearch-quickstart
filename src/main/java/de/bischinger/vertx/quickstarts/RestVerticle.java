@@ -17,12 +17,14 @@
 package de.bischinger.vertx.quickstarts;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.DeploymentOptions;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.ext.web.handler.StaticHandler;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
@@ -52,8 +54,9 @@ public class RestVerticle extends AbstractVerticle {
     public void start() throws UnknownHostException {
 
         setUpInitialData();
-        setupElasticsearchClient();
-        vertx.deployVerticle(new PeriodicTimerVerticle());
+     //   setupElasticsearchClient();
+      //  vertx.deployVerticle(new PeriodicTimerVerticle(), new DeploymentOptions().setWorker(true));
+     //   vertx.deployVerticle(new ElasticSearchVerticle(), new DeploymentOptions().setWorker(true));
 
         Router router = Router.router(vertx);
 
@@ -62,7 +65,10 @@ public class RestVerticle extends AbstractVerticle {
         router.put("/products/:productID").handler(this::handleAddProduct);
         router.get("/products").handler(this::handleListProducts);
 
-        vertx.createHttpServer().requestHandler(router::accept).listen(config().getInteger("http.port", 8080));
+        router.route("/*").handler(StaticHandler.create());
+
+        Integer port = config().getInteger("http.port", 8080);
+        vertx.createHttpServer().requestHandler(router::accept).listen(port);
     }
 
     private void setupElasticsearchClient() throws UnknownHostException {
